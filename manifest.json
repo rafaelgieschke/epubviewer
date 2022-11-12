@@ -1,0 +1,22 @@
+{
+  "start_url": ".",
+  "name": "ePubViewer",
+  "display": "minimal-ui",
+  "icons": [
+    {
+      "src": "icon-256x256.png",
+      "type": "image/png",
+      "sizes": "256x256"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": ".",
+      "accept": {
+        "application/epub+zip": [".epub"]
+      },
+      "launch_type": "multiple-clients"
+    }
+  ],
+  "": ""
+}

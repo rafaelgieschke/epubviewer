@@ -170,7 +170,7 @@ App.prototype.getChipActive = function (container) {
     return el.dataset.value;
 };
 
-App.prototype.doOpenBook = function () {
+App.prototype.doOpenBook = function (file = undefined) {
     var fi = document.createElement("input");
     fi.setAttribute("accept", "application/epub+zip");
     fi.style.display = "none";
@@ -191,12 +191,16 @@ App.prototype.doOpenBook = function () {
                 this.fatal("invalid file", "not an epub book");
             }
         }, false);
-        if (fi.files[0]) {
-            reader.readAsArrayBuffer(fi.files[0]);
+        if (event.target.files[0]) {
+            reader.readAsArrayBuffer(event.target.files[0]);
         }
     };
     document.body.appendChild(fi);
-    fi.click();
+    if (file) {
+        fi.onchange({target: {files: [file]}});
+    } else {
+        fi.click();
+    }
 };
 
 App.prototype.fatal = function (msg, err, usersFault) {
@@ -753,6 +757,12 @@ let ePubViewer = null;
 
 try {
     ePubViewer = new App(document.querySelector(".app"));
+    if (new URL(location).searchParams.get("activation")) {
+        window.launchQueue?.setConsumer((launchParams) => {
+            launchParams.files?.[0]?.getFile().then(
+                (file) => ePubViewer.doOpenBook(file));
+        });
+    } else {
     let ufn = location.search.replace("?", "") || location.hash.replace("#", "");
     if (ufn.startsWith("!")) {
         ufn = ufn.replace("!", "");
@@ -766,7 +776,7 @@ try {
         });
         ePubViewer.doBook(ufn);
     }
-} catch (err) {
+}} catch (err) {
     document.querySelector(".app .error").classList.remove("hidden");
     document.querySelector(".app .error .error-title").innerHTML = "Error";
     document.querySelector(".app .error .error-description").innerHTML = "Please try reloading the page or using a different browser (Chrome or Firefox), and if the error still persists, <a href=\"https://github.com/pgaskin/ePubViewer/issues\">report an issue</a>.";
